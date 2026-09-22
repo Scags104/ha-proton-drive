@@ -391,7 +391,8 @@ class ProtonCLI:
         return [file.name.value for file in files]
 
     async def get_email(self) -> str:
-        """Get the email address of the authenticated user."""
+        """Get the email address of the authenticated user. Calling the filesystem first as a means to wake up the CLI"""
+        await self.run("filesystem", "list", "/", timeout_s=self.METADATA_TIMEOUT_S)
         result = await self.__api_call("GET", "/core/v4/users")
         return result.User.Email
 
