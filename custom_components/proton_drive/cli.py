@@ -321,7 +321,8 @@ class ProtonCLI:
                 *argv,
                 env={
                     **os.environ,
-                    "PROTON_DRIVE_UNSAFE_SECRETS": "true",
+                    "PROTON_DRIVE_CREDENTIALS_STORE": "unsafe_file",
+                    "PROTON_DRIVE_UNSAFE_CACHE": "true",
                     "XDG_CACHE_HOME": self.__xdg,
                     "XDG_DATA_HOME": self.__xdg,
                     "XDG_STATE_HOME": self.__xdg,
