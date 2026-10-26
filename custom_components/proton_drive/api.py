@@ -282,23 +282,24 @@ class ProtonDriveClient:
 
             try:
                 # TODO: upload progress feedback is missing
-                await asyncio.gather(
-                    self.__cli.run(
-                        "filesystem",
-                        "upload",
-                        str(meta_path),
-                        str(self.__backup_folder),
-                        timeout_s=ProtonCLI.METADATA_TIMEOUT_S,
-                        retries=0,
-                    ),
-                    self.__cli.run(
-                        "filesystem",
-                        "upload",
-                        str(archive_path),
-                        str(self.__backup_folder),
-                        timeout_s=ProtonCLI.TRANSFER_TIMEOUT_S,
-                        retries=0,
-                    ),
+                # Upload sequentially: running two CLI processes at once can make them
+                # both try to refresh an expired token and invalidate each other.
+                # Archive first, so a metadata file only exists if the archive made it.
+                await self.__cli.run(
+                    "filesystem",
+                    "upload",
+                    str(archive_path),
+                    str(self.__backup_folder),
+                    timeout_s=ProtonCLI.TRANSFER_TIMEOUT_S,
+                    retries=0,
+                )
+                await self.__cli.run(
+                    "filesystem",
+                    "upload",
+                    str(meta_path),
+                    str(self.__backup_folder),
+                    timeout_s=ProtonCLI.METADATA_TIMEOUT_S,
+                    retries=0,
                 )
             except CLIError:
                 filenames = [Path(metadata_name), Path(archive_name)]
